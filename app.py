@@ -1,5 +1,5 @@
 """
-App Streamlit para asignación de horarios académicos con duración semanal por materia.
+App Streamlit para asignación de horarios académicos con mensajes de error detallados.
 Autor: Proyecto educativo
 """
 
@@ -72,20 +72,24 @@ def seccion_ingreso_profesores():
                 })
                 st.success(f"Profesor {nombre_prof} agregado.")
 
-    # Mostrar profesores agregados
+    # Mostrar profesores agregados y su información
     if st.session_state['profesores']:
-        st.markdown("<h4 style='text-align:center;'>Profesores ingresados</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align:center;'>Profesores registrados</h4>", unsafe_allow_html=True)
         for prof in st.session_state['profesores']:
-            st.write(f"- **{prof['nombre']}**: {[m['nombre'] for m in prof['materias']]}")
+            st.markdown(f"**Profesor:** {prof['nombre']}")
+            st.markdown(f"- **Horarios disponibles:** {', '.join(prof['horarios']) if prof['horarios'] else 'Ninguno'}")
+            st.markdown("- **Materias:**")
+            for m in prof['materias']:
+                st.markdown(f"    - {m['nombre']} (Semestre: {m['semestre']}, Duración: {m['duracion']}h/sem)")
+            st.markdown("---")
 
-# ------------------- Algoritmo de asignación -------------------
-def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
+# ------------------- Algoritmo de asignación con mensajes de error -------------------
+def asignar_horarios(profesores: List[Dict]) -> (Optional[List[Dict]], List[str]):
     """
     Asigna bloques de horario a todas las materias de todos los profesores según su duración semanal.
-    Cada materia recibe tantos bloques como necesita (1 bloque = 2h).
-    Devuelve una lista de asignaciones si es posible, o None si no hay solución.
-    Cada asignación es un dict: {'Día', 'Horario', 'Materia', 'Semestre', 'Profesor'}
+    Devuelve una lista de asignaciones si es posible, o None y una lista de mensajes de error si no hay solución.
     """
+    errores = []
     # Preprocesar: eliminar horarios de almuerzo y preparar lista de tareas
     tareas = []  # Cada tarea: (profesor_idx, materia_idx, bloque_idx)
     disponibilidad = []  # Por tarea, los horarios disponibles
@@ -93,6 +97,8 @@ def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
         horarios_validos = [h for h in prof['horarios'] if not es_horario_almuerzo(h)]
         for m_idx, mat in enumerate(prof['materias']):
             bloques_necesarios = (mat['duracion'] + 1) // 2  # Redondea hacia arriba si es impar
+            if len(horarios_validos) < bloques_necesarios:
+                errores.append(f"No hay suficientes bloques disponibles para la materia '{mat['nombre']}' del profesor {prof['nombre']} (requiere {bloques_necesarios}, disponibles: {len(horarios_validos)}).")
             for b in range(bloques_necesarios):
                 tareas.append((p_idx, m_idx, b))
                 disponibilidad.append(horarios_validos)
@@ -104,6 +110,9 @@ def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
     horarios_por_semestre = dict()  # (semestre, horario) -> tarea_idx
     horarios_global = dict()  # (profesor, horario) -> tarea_idx
     bloques_por_materia = dict()  # (profesor_idx, materia_idx) -> set de horarios
+    fallo_40h = set()
+    fallo_conf_semestre = set()
+    fallo_conf_dia = set()
 
     def backtrack(idx):
         if idx == len(tareas):
@@ -117,15 +126,18 @@ def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
             # Restricción: no usar horario de almuerzo (ya filtrado)
             # Restricción: no más de 40h/semana (20 bloques)
             if horas_por_profesor[p_idx] >= 20:
+                fallo_40h.add(prof['nombre'])
                 continue
             # Restricción: un horario no puede usarse dos veces por el mismo profesor
             if horario in usados_por_profesor[p_idx]:
                 continue
             # Restricción: no más de 2 materias en el mismo día
             if materias_por_dia[p_idx].get(dia, 0) >= 2:
+                fallo_conf_dia.add((prof['nombre'], dia))
                 continue
             # Restricción: dos materias del mismo semestre no pueden estar en el mismo horario
             if (semestre, horario) in horarios_por_semestre:
+                fallo_conf_semestre.add((prof['nombre'], semestre, horario))
                 continue
             # Restricción: un profesor no puede estar en dos materias al mismo tiempo
             if (p_idx, horario) in horarios_global:
@@ -157,6 +169,8 @@ def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
             bloques_por_materia[(p_idx, m_idx)].remove(horario)
         return False
 
+    if any("No hay suficientes bloques disponibles" in e for e in errores):
+        return None, errores
     if backtrack(0):
         resultado = []
         for idx, (p_idx, m_idx, b_idx) in enumerate(tareas):
@@ -172,9 +186,21 @@ def asignar_horarios(profesores: List[Dict]) -> Optional[List[Dict]]:
                 'Día': dia,
                 'Horario': horario
             })
-        return resultado
+        return resultado, []
     else:
-        return None
+        # Mensajes de error detallados
+        if fallo_40h:
+            for prof in fallo_40h:
+                errores.append(f"El profesor {prof} excede las 40 horas semanales permitidas.")
+        if fallo_conf_semestre:
+            for prof, semestre, horario in fallo_conf_semestre:
+                errores.append(f"Conflicto de horario en el semestre {semestre} para el profesor {prof} en el bloque {horario}.")
+        if fallo_conf_dia:
+            for prof, dia in fallo_conf_dia:
+                errores.append(f"El profesor {prof} tiene más de 2 materias asignadas el día {dia}.")
+        if not errores:
+            errores.append("No se encontró una combinación válida de horarios para las restricciones dadas.")
+        return None, errores
 
 # ------------------- Cálculo de carga horaria -------------------
 def calcular_carga_horaria(asignaciones: List[Dict]) -> pd.DataFrame:
@@ -195,7 +221,7 @@ def seccion_calculo_resultado():
         return
     calcular = st.button("Calcular horarios", use_container_width=True)
     if calcular:
-        resultado = asignar_horarios(profesores)
+        resultado, errores = asignar_horarios(profesores)
         if resultado:
             st.success("¡Asignación exitosa!")
             col1, col2 = st.columns(2)
@@ -208,7 +234,9 @@ def seccion_calculo_resultado():
                 resumen = calcular_carga_horaria(resultado)
                 st.dataframe(resumen, use_container_width=True, hide_index=True)
         else:
-            st.error("No se encontró una combinación válida de horarios para las restricciones dadas.")
+            st.error("No se pudo realizar la asignación de horarios. Razones:")
+            for err in errores:
+                st.markdown(f"- {err}")
 
 # ------------------- Main -------------------
 def main():
