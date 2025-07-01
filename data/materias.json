@@ -1,1 +1,226 @@
-[] 
+[
+  {
+    "codigo": "MAT101",
+    "nombre": "Matemáticas I",
+    "semestre": 1,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "FIS101",
+    "nombre": "Física I",
+    "semestre": 1,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO101",
+    "nombre": "Programación I",
+    "semestre": 1,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "ING101",
+    "nombre": "Inglés Técnico I",
+    "semestre": 1,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "MAT102",
+    "nombre": "Matemáticas II",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "FIS102",
+    "nombre": "Física II",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO102",
+    "nombre": "Programación II",
+    "semestre": 2,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "EST101",
+    "nombre": "Estadística I",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "MAT201",
+    "nombre": "Cálculo Diferencial",
+    "semestre": 3,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "EST201",
+    "nombre": "Estadística II",
+    "semestre": 3,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO201",
+    "nombre": "Estructuras de Datos",
+    "semestre": 3,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "BD101",
+    "nombre": "Bases de Datos I",
+    "semestre": 3,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "MAT202",
+    "nombre": "Cálculo Integral",
+    "semestre": 4,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO202",
+    "nombre": "Programación Orientada a Objetos",
+    "semestre": 4,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "BD201",
+    "nombre": "Bases de Datos II",
+    "semestre": 4,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "RED101",
+    "nombre": "Redes de Computadores I",
+    "semestre": 4,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "MAT301",
+    "nombre": "Álgebra Lineal",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO301",
+    "nombre": "Desarrollo de Software",
+    "semestre": 5,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "RED201",
+    "nombre": "Redes de Computadores II",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "SIS101",
+    "nombre": "Sistemas Operativos",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "MAT302",
+    "nombre": "Investigación de Operaciones",
+    "semestre": 6,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO302",
+    "nombre": "Ingeniería de Software",
+    "semestre": 6,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "SIS201",
+    "nombre": "Arquitectura de Computadores",
+    "semestre": 6,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "WEB101",
+    "nombre": "Desarrollo Web",
+    "semestre": 6,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO401",
+    "nombre": "Inteligencia Artificial",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO402",
+    "nombre": "Desarrollo de Aplicaciones Móviles",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "SIS301",
+    "nombre": "Seguridad Informática",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO403",
+    "nombre": "Computación en la Nube",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "PRO501",
+    "nombre": "Proyecto de Grado I",
+    "semestre": 8,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "PRO502",
+    "nombre": "Proyecto de Grado II",
+    "semestre": 8,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "SIS401",
+    "nombre": "Auditoría de Sistemas",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "ADM101",
+    "nombre": "Gestión de Proyectos de TI",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  }
+] 

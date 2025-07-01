@@ -4,9 +4,9 @@ Incluye funciones para mostrar títulos y secciones.
 """
 import streamlit as st
 
-def mostrar_titulo():
+def mostrar_titulo(titulo):
     """Muestra el título principal de la app."""
-    st.markdown("<h1 style='text-align:center;'>Asignación de Horarios Universitarios</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='text-align:center;'>{titulo}</h1>", unsafe_allow_html=True)
 
 def mostrar_seccion(nombre):
     """Muestra un subtítulo/sección con el nombre dado."""

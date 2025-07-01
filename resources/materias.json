@@ -1,0 +1,366 @@
+[
+  {
+    "codigo": "TIP01BFT01",
+    "nombre": "FUNDAMENTOS DE MATEMÁTICA",
+    "semestre": 1,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP01BFT02",
+    "nombre": "ANÁLISIS I",
+    "semestre": 1,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP01BFT03",
+    "nombre": "PROGRAMACIÓN I",
+    "semestre": 1,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP01BFT04",
+    "nombre": "FUNDAMENTOS DE SISTEMAS DE INFORMACIÓN",
+    "semestre": 1,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP01BFT06",
+    "nombre": "FÍSICA APLICADA",
+    "semestre": 1,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP01BCL05",
+    "nombre": "COMUNICACIÓN Y LENGUAJE",
+    "semestre": 2,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP02BFT01",
+    "nombre": "PROGRAMACIÓN II",
+    "semestre": 2,
+    "horas_semanales": 8,
+    "horas_semestrales": 128
+  },
+  {
+    "codigo": "TIP02BFT02",
+    "nombre": "ANÁLISIS II",
+    "semestre": 2,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP02BFT03",
+    "nombre": "NUEVAS TECNOLOGÍAS E INNOVACIÓN",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP02BFT04",
+    "nombre": "MATEMÁTICAS DISCRETAS",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP02BFT05",
+    "nombre": "ÁLGEBRA LINEAL",
+    "semestre": 2,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP03BFT01",
+    "nombre": "ESTRUCTURA DE DATOS",
+    "semestre": 3,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP03BFT02",
+    "nombre": "ARQUITECTURA DE COMPUTADORES",
+    "semestre": 3,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP03BFT03",
+    "nombre": "INTRODUCCIÓN A LA INVESTIGACIÓN CIENTÍFICA",
+    "semestre": 3,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP03BFT04",
+    "nombre": "INTERFACES DE USUARIO",
+    "semestre": 3,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP03BFT05",
+    "nombre": "PROBABILIDADES Y ESTADÍSTICA",
+    "semestre": 3,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP03BFT06",
+    "nombre": "ECUACIONES DIFERENCIALES",
+    "semestre": 3,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP02BCL06",
+    "nombre": "LIDERAZGO",
+    "semestre": 4,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP04BFT01",
+    "nombre": "ALGORITMOS",
+    "semestre": 4,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP04BFT02",
+    "nombre": "SISTEMAS OPERATIVOS I",
+    "semestre": 4,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP04BFT03",
+    "nombre": "INFRAESTRUCTURA DE TI - I",
+    "semestre": 4,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP04BFT04",
+    "nombre": "MÉTODOS NUMÉRICOS",
+    "semestre": 4,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP04BFT05",
+    "nombre": "ALMACENAJE DE DATOS Y DE LA INFORMACIÓN",
+    "semestre": 4,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP05BFT01",
+    "nombre": "MARCOS DE DESARROLLO I",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP05BFT02",
+    "nombre": "SISTEMAS OPERATIVOS II",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP05BFT03",
+    "nombre": "INFRAESTRUCTURA DE TI - II",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP05BFT04",
+    "nombre": "GESTIÓN DE DATOS Y DE LA INFORMACIÓN",
+    "semestre": 5,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP05BFT05",
+    "nombre": "ANÁLISIS Y DISEÑO DE SISTEMAS",
+    "semestre": 5,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP06BFT01",
+    "nombre": "MARCOS DE DESARROLLO II",
+    "semestre": 6,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP06BFT02",
+    "nombre": "ANÁLISIS DE DATOS",
+    "semestre": 6,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP06BFT03",
+    "nombre": "SEGURIDAD Y GESTIÓN DE RIESGO EN LAS TI",
+    "semestre": 6,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP06BFT04",
+    "nombre": "DESARROLLO DE SISTEMAS DE INFORMACIÓN",
+    "semestre": 6,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP06BFT05",
+    "nombre": "CONTABILIDAD FINANCIERA",
+    "semestre": 6,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP07BFT01",
+    "nombre": "PROGRAMACIÓN WEB",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP07BFT02",
+    "nombre": "ARQUITECTURA DE SOFTWARE",
+    "semestre": 7,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP07BFT03",
+    "nombre": "SOCIEDAD DE LA INFORMACIÓN",
+    "semestre": 7,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP07BFT04",
+    "nombre": "INTELIGENCIA DE NEGOCIOS",
+    "semestre": 7,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP07BFT05",
+    "nombre": "FUNDAMENTOS DE ECONOMÍA",
+    "semestre": 7,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP07BFT06",
+    "nombre": "INVESTIGACIÓN APLICADA",
+    "semestre": 7,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP08BFT01",
+    "nombre": "PROGRAMACIÓN DISTRIBUIDA",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP08BFT02",
+    "nombre": "MINERÍA DE DATOS",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP08BFT03",
+    "nombre": "CONTROL DE CALIDAD DEL SOFTWARE",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP08BFT04",
+    "nombre": "AUDITORÍA DE TI",
+    "semestre": 8,
+    "horas_semanales": 6,
+    "horas_semestrales": 96
+  },
+  {
+    "codigo": "TIP08BFT05",
+    "nombre": "INVESTIGACIÓN OPERATIVA",
+    "semestre": 8,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP09BFT01",
+    "nombre": "MODELOS DE INVESTIGACIÓN DE OPERACIONES",
+    "semestre": 9,
+    "horas_semanales": 5,
+    "horas_semestrales": 80
+  },
+  {
+    "codigo": "TIP09BFT02",
+    "nombre": "GESTIÓN EN PROCESOS DE NEGOCIOS (BPM)",
+    "semestre": 9,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP09BFT03",
+    "nombre": "GESTIÓN DE PROYECTOS EN SISTEMAS DE INFORMACIÓN",
+    "semestre": 9,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP09BFT04",
+    "nombre": "LEGISLACIÓN INFORMÁTICA",
+    "semestre": 9,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP10BFT01",
+    "nombre": "SISTEMAS DE INFORMACIÓN EMPRESARIAL",
+    "semestre": 10,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP10BFT02",
+    "nombre": "FORMACIÓN DE EMPRESAS DE BASE TECNOLÓGICA",
+    "semestre": 10,
+    "horas_semanales": 2,
+    "horas_semestrales": 32
+  },
+  {
+    "codigo": "TIP10BFT03",
+    "nombre": "PROGRAMACIÓN PARA DISPOSITIVOS MÓVILES",
+    "semestre": 10,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  },
+  {
+    "codigo": "TIP10BFT04",
+    "nombre": "ESTRATEGIA, GESTIÓN Y ADQUISICIÓN EN LOS SISTEMAS DE INFORMACIÓN",
+    "semestre": 10,
+    "horas_semanales": 4,
+    "horas_semestrales": 64
+  }
+]
