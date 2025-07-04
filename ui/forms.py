@@ -1,13 +1,11 @@
-"""
-ui/forms.py - Formularios y gestión de profesores y materias para la app de asignación de horarios universitarios.
-Incluye formularios para registrar, editar, eliminar y seleccionar profesores y materias.
-"""
-import streamlit as st
-from logic import utils
-# from ui.layout import tarjeta_profesor, tarjeta_materia
-from logic.asignador import asignar_horarios
-import pandas as pd
 
+from typing import Dict, List, Optional, Tuple, Union
+import streamlit as st
+import pandas as pd
+from logic import utils
+from logic.asignador import asignar_horarios
+
+# Constantes mejor organizadas
 HORARIOS_BASE = [
     "Lunes 7-9", "Lunes 9-11", "Lunes 11-13", "Lunes 13-15",
     "Martes 7-9", "Martes 9-11", "Martes 11-13", "Martes 13-15",
@@ -15,101 +13,242 @@ HORARIOS_BASE = [
     "Jueves 7-9", "Jueves 9-11", "Jueves 11-13", "Jueves 13-15",
     "Viernes 7-9", "Viernes 9-11", "Viernes 11-13", "Viernes 13-15"
 ]
-DURACIONES = [1, 2, 4, 6]
 
-def formulario_profesor(default=None):
+DURACIONES = [1, 2, 4, 6]
+MAX_MATERIAS = 10
+MAX_SEMESTRES = 12
+
+def _validar_datos_profesor(nombre: str, horarios: List[str], materias: List[Dict]) -> bool:
+    """Valida los datos de un profesor antes de guardar."""
+    if not nombre.strip():
+        st.warning("El nombre del profesor no puede estar vacío.")
+        return False
+    
+    if not horarios:
+        st.warning("Debe seleccionar al menos un horario disponible.")
+        return False
+    
+    if not materias:
+        st.warning("Debe agregar al menos una materia.")
+        return False
+    
+    for materia in materias:
+        if not materia['nombre'].strip():
+            st.warning("El nombre de la materia no puede estar vacío.")
+            return False
+        
+        if not (1 <= materia['semestre'] <= MAX_SEMESTRES):
+            st.warning(f"El semestre debe estar entre 1 y {MAX_SEMESTRES}.")
+            return False
+        
+        if materia['duracion'] not in DURACIONES:
+            st.warning(f"La duración debe ser uno de los valores permitidos: {DURACIONES}.")
+            return False
+    
+    return True
+
+def formulario_profesor(default: Optional[Dict] = None) -> Tuple[str, List[str], List[Dict]]:
     """
     Formulario para ingresar o editar un profesor y sus materias.
-    Si default se provee, se usa para valores iniciales (edición).
+    
+    Args:
+        default: Diccionario con datos del profesor para edición (opcional)
+        
+    Returns:
+        Tuple con (nombre, horarios_disponibles, lista_de_materias)
     """
-    if default is None:
-        nombre = st.text_input("Nombre del profesor")
-        horarios = st.multiselect("Horarios disponibles", HORARIOS_BASE)
-        n_materias = st.slider("¿Cuántas materias dicta?", min_value=1, max_value=10, value=1)
-        materias_default = [{} for _ in range(n_materias)]
-    else:
-        nombre = st.text_input("Nombre del profesor", value=default['nombre'], key=f"edit_nombre_{default['nombre']}")
-        horarios = st.multiselect("Horarios disponibles", HORARIOS_BASE, default=default['horarios_disponibles'], key=f"edit_horarios_{default['nombre']}")
-        n_materias = st.slider("¿Cuántas materias dicta?", min_value=1, max_value=10, value=len(default['materias']), key=f"edit_nmat_{default['nombre']}")
-        materias_default = default['materias'][:n_materias] + [{} for _ in range(n_materias - len(default['materias']))]
+    # Configuración inicial basada en si es edición o creación
+    es_edicion = default is not None
+    key_suffix = f"_edit_{default['nombre']}" if es_edicion else ""
+    
+    # Sección de datos básicos del profesor
+    nombre = st.text_input(
+        "Nombre del profesor", 
+        value=default['nombre'] if es_edicion else "",
+        key=f"nombre{key_suffix}"
+    )
+    
+    horarios = st.multiselect(
+        "Horarios disponibles", 
+        HORARIOS_BASE,
+        default=default['horarios_disponibles'] if es_edicion else [],
+        key=f"horarios{key_suffix}"
+    )
+    
+    # Sección de materias
+    st.subheader("Materias que dicta")
+    n_materias = st.slider(
+        "¿Cuántas materias dicta?", 
+        min_value=1, 
+        max_value=MAX_MATERIAS, 
+        value=len(default['materias']) if es_edicion else 1,
+        key=f"n_materias{key_suffix}"
+    )
+    
+    # Preparar valores por defecto para materias
+    materias_default = (
+        default['materias'][:n_materias] + 
+        [{} for _ in range(n_materias - len(default['materias']))] 
+        if es_edicion else 
+        [{} for _ in range(n_materias)]
+    )
+    
     materias = []
     for i in range(n_materias):
-        st.markdown(f"**Materia #{i+1}**")
-        nombre_mat = st.text_input(f"Nombre de la materia #{i+1}", value=materias_default[i].get('nombre', ''), key=f"mat_nombre_{nombre}_{i}")
-        semestre = st.number_input(f"Semestre de la materia #{i+1}", min_value=1, max_value=12, value=materias_default[i].get('semestre', 1), step=1, key=f"mat_sem_{nombre}_{i}")
-        duracion = st.selectbox(f"Duración semanal (horas) de la materia #{i+1}", DURACIONES, index=DURACIONES.index(materias_default[i].get('duracion', 1)) if materias_default[i].get('duracion') in DURACIONES else 0, key=f"mat_dur_{nombre}_{i}")
-        materias.append({"nombre": nombre_mat, "semestre": semestre, "duracion": duracion})
+        with st.container():
+            st.markdown(f"### Materia #{i+1}")
+            
+            nombre_mat = st.text_input(
+                f"Nombre", 
+                value=materias_default[i].get('nombre', ''),
+                key=f"mat_nombre{key_suffix}_{i}"
+            )
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                semestre = st.number_input(
+                    f"Semestre", 
+                    min_value=1, 
+                    max_value=MAX_SEMESTRES, 
+                    value=materias_default[i].get('semestre', 1),
+                    key=f"mat_sem{key_suffix}_{i}"
+                )
+            with col2:
+                duracion = st.selectbox(
+                    f"Duración semanal (horas)", 
+                    DURACIONES,
+                    index=DURACIONES.index(materias_default[i].get('duracion', 1)) 
+                    if materias_default[i].get('duracion') in DURACIONES else 0,
+                    key=f"mat_dur{key_suffix}_{i}"
+                )
+            
+            materias.append({
+                "nombre": nombre_mat, 
+                "semestre": semestre, 
+                "duracion": duracion
+            })
+    
     return nombre, horarios, materias
 
-def formulario_materia(default=None):
+def formulario_materia(default: Optional[Dict] = None) -> Tuple[str, int, int]:
     """
     Formulario para ingresar o editar una materia.
-    Si default se provee, se usa para valores iniciales (edición).
+    
+    Args:
+        default: Diccionario con datos de la materia para edición (opcional)
+        
+    Returns:
+        Tuple con (nombre, duracion, semestre)
     """
-    if default is None:
-        nombre = st.text_input("Nombre de la materia")
-        duracion = st.selectbox("Duración semanal (horas)", DURACIONES)
-        semestre = st.number_input("Semestre", min_value=1, max_value=12, value=1, step=1)
-    else:
-        nombre = st.text_input("Nombre de la materia", value=default['nombre'], key=f"edit_mat_nombre_{default['nombre']}")
-        duracion = st.selectbox("Duración semanal (horas)", DURACIONES, index=DURACIONES.index(default['duracion']) if default['duracion'] in DURACIONES else 0, key=f"edit_mat_dur_{default['nombre']}")
-        semestre = st.number_input("Semestre", min_value=1, max_value=12, value=default['semestre'], step=1, key=f"edit_mat_sem_{default['nombre']}")
+    es_edicion = default is not None
+    key_suffix = f"_edit_{default['nombre']}" if es_edicion else ""
+    
+    nombre = st.text_input(
+        "Nombre de la materia", 
+        value=default['nombre'] if es_edicion else "",
+        key=f"mat_nombre{key_suffix}"
+    )
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        duracion = st.selectbox(
+            "Duración semanal (horas)", 
+            DURACIONES,
+            index=DURACIONES.index(default['duracion']) if es_edicion and default['duracion'] in DURACIONES else 0,
+            key=f"mat_dur{key_suffix}"
+        )
+    with col2:
+        semestre = st.number_input(
+            "Semestre", 
+            min_value=1, 
+            max_value=MAX_SEMESTRES, 
+            value=default['semestre'] if es_edicion else 1,
+            key=f"mat_sem{key_suffix}"
+        )
+    
     return nombre, duracion, semestre
 
-def formulario_profesor_con_malla(default=None):
+def formulario_profesor_con_malla(default: Optional[Dict] = None) -> Tuple[str, List[str], List[Dict]]:
     """
     Formulario para registrar profesor seleccionando materias desde la malla curricular.
-    Permite seleccionar materias por semestre y muestra automáticamente las horas.
-    """
-    # Cargar malla curricular
-    malla = utils.cargar_malla_curricular()
-    if not malla:
-        st.error("No se pudo cargar la malla curricular.")
-        return None, None, None
-
-    # Datos básicos del profesor
-    if default is None:
-        nombre = st.text_input("Nombre del profesor")
-        horarios = st.multiselect("Horarios disponibles", HORARIOS_BASE)
-    else:
-        nombre = st.text_input("Nombre del profesor", value=default['nombre'], key=f"edit_nombre_{default['nombre']}")
-        horarios = st.multiselect("Horarios disponibles", HORARIOS_BASE, default=default['horarios_disponibles'], key=f"edit_horarios_{default['nombre']}")
-
-    # Selección de materias por semestre
-    st.markdown("### Selección de materias desde la malla curricular")
     
-    # Obtener semestres únicos
-    semestres = sorted(list(set([m['semestre'] for m in malla])))
+    Args:
+        default: Diccionario con datos del profesor para edición (opcional)
+        
+    Returns:
+        Tuple con (nombre, horarios_disponibles, lista_de_materias)
+    """
+    try:
+        malla = utils.cargar_malla_curricular()
+        if not malla:
+            st.error("No se pudo cargar la malla curricular. Verifique que exista.")
+            return None, None, None
+    except Exception as e:
+        st.error(f"Error al cargar la malla curricular: {str(e)}")
+        return None, None, None
+    
+    es_edicion = default is not None
+    key_suffix = f"_edit_{default['nombre']}" if es_edicion else ""
+    
+    # Sección de datos básicos
+    st.subheader("Datos del profesor")
+    nombre = st.text_input(
+        "Nombre del profesor", 
+        value=default['nombre'] if es_edicion else "",
+        key=f"nombre_malla{key_suffix}"
+    )
+    
+    horarios = st.multiselect(
+        "Horarios disponibles", 
+        HORARIOS_BASE,
+        default=default['horarios_disponibles'] if es_edicion else [],
+        key=f"horarios_malla{key_suffix}"
+    )
+    
+    # Sección de selección de materias
+    st.subheader("Selección de materias desde malla curricular")
+    
+    # Obtener semestres únicos ordenados
+    semestres = sorted({m['semestre'] for m in malla})
     
     materias_seleccionadas = []
+    total_horas = 0
     
     for semestre in semestres:
-        materias_semestre = utils.obtener_materias_por_semestre(semestre)
-        if materias_semestre:
-            with st.expander(f"Semestre {semestre}"):
-                # Crear opciones para el multiselect
-                opciones = [f"{m['codigo']} - {m['nombre']} ({m['horas_semanales']}h/sem)" for m in materias_semestre]
+        with st.expander(f"Semestre {semestre}"):
+            materias_semestre = utils.obtener_materias_por_semestre(semestre)
+            
+            if not materias_semestre:
+                st.warning(f"No hay materias registradas para el semestre {semestre}")
+                continue
                 
-                # Si es edición, preseleccionar las materias que ya tiene el profesor
-                default_seleccionadas = []
-                if default:
-                    for m_prof in default['materias']:
-                        for m_malla in materias_semestre:
-                            if m_prof['nombre'] == m_malla['nombre']:
-                                opcion = f"{m_malla['codigo']} - {m_malla['nombre']} ({m_malla['horas_semanales']}h/sem)"
-                                default_seleccionadas.append(opcion)
-                
-                seleccion = st.multiselect(
-                    f"Seleccione materias del semestre {semestre}",
-                    opciones,
-                    default=default_seleccionadas,
-                    key=f"semestre_{semestre}_{nombre if nombre else 'nuevo'}"
-                )
-                
-                # Convertir selección a formato de materias
-                for opcion in seleccion:
+            # Preparar opciones y valores por defecto
+            opciones = [
+                f"{m['codigo']} - {m['nombre']} ({m['horas_semanales']}h/sem)" 
+                for m in materias_semestre
+            ]
+            
+            default_seleccionadas = []
+            if es_edicion:
+                for m_prof in default['materias']:
+                    for m_malla in materias_semestre:
+                        if m_prof['nombre'] == m_malla['nombre']:
+                            opcion = f"{m_malla['codigo']} - {m_malla['nombre']} ({m_malla['horas_semanales']}h/sem)"
+                            default_seleccionadas.append(opcion)
+            
+            seleccion = st.multiselect(
+                f"Materias del semestre {semestre}",
+                opciones,
+                default=default_seleccionadas,
+                key=f"semestre_{semestre}{key_suffix}"
+            )
+            
+            # Procesar selección
+            for opcion in seleccion:
+                try:
                     codigo = opcion.split(" - ")[0]
                     materia_malla = utils.buscar_materia_por_codigo(codigo)
+                    
                     if materia_malla:
                         materias_seleccionadas.append({
                             "codigo": materia_malla['codigo'],
@@ -117,189 +256,284 @@ def formulario_profesor_con_malla(default=None):
                             "semestre": materia_malla['semestre'],
                             "duracion": materia_malla['horas_semanales']
                         })
-
-    # Mostrar resumen de materias seleccionadas
+                        total_horas += materia_malla['horas_semanales']
+                except Exception as e:
+                    st.error(f"Error al procesar materia {opcion}: {str(e)}")
+    
+    # Mostrar resumen
     if materias_seleccionadas:
-        st.markdown("### Materias seleccionadas:")
-        total_horas = 0
-        for materia in materias_seleccionadas:
-            st.markdown(f"- **{materia['codigo']}**: {materia['nombre']} ({materia['duracion']}h/sem)")
-            total_horas += materia['duracion']
+        st.subheader("Resumen de materias seleccionadas")
+        
+        df = pd.DataFrame(materias_seleccionadas)
+        st.dataframe(df[['codigo', 'nombre', 'semestre', 'duracion']].rename(
+            columns={'duracion': 'horas/semana'}), 
+            hide_index=True
+        )
+        
         st.markdown(f"**Total de horas semanales: {total_horas}h**")
-
+    
     return nombre, horarios, materias_seleccionadas
 
-def gestionar_profesores():
-    """
-    Muestra y permite gestionar profesores: ver, editar, eliminar, agregar.
-    """
-    st.markdown("### Gestión de Profesores")
-    profesores = utils.cargar_profesores()
-    for prof in profesores:
-        with st.expander(f"{prof['nombre']}"):
-            st.markdown(f"**Horarios disponibles:** {', '.join(prof['horarios_disponibles']) if prof['horarios_disponibles'] else 'Ninguno'}")
-            st.markdown("**Materias:**")
-            for m in prof['materias']:
-                st.markdown(f"- {m['nombre']} (Semestre: {m['semestre']}, Duración: {m['duracion']}h)")
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button(f"Editar", key=f"editar_{prof['nombre']}"):
-                    with st.form(f"form_edit_{prof['nombre']}", clear_on_submit=True):
-                        nombre, horarios, materias = formulario_profesor(default=prof)
-                        submit = st.form_submit_button("Guardar cambios")
-                        if submit:
-                            if not nombre or not horarios or any(not m["nombre"] or not m["semestre"] or not m["duracion"] for m in materias):
-                                st.warning("Por favor, complete todos los campos antes de guardar.")
-                            else:
-                                nuevo_prof = {"nombre": nombre, "horarios_disponibles": horarios, "materias": materias}
-                                utils.actualizar_profesor(prof['nombre'], nuevo_prof)
-                                st.success("Profesor actualizado.")
-                                st.experimental_rerun()
-            with col2:
-                if st.button(f"Eliminar", key=f"eliminar_{prof['nombre']}"):
-                    utils.eliminar_profesor(prof['nombre'])
-                    st.success("Profesor eliminado.")
-                    st.experimental_rerun()
-    st.markdown("---")
-    st.markdown("#### Agregar nuevo profesor")
-    with st.form("form_nuevo_profesor", clear_on_submit=True):
-        nombre, horarios, materias = formulario_profesor()
-        submit = st.form_submit_button("Agregar profesor")
-        if submit:
-            if not nombre or not horarios or any(not m["nombre"] or not m["semestre"] or not m["duracion"] for m in materias):
-                st.warning("Por favor, complete todos los campos antes de agregar el profesor.")
-            else:
-                nuevo_prof = {"nombre": nombre, "horarios_disponibles": horarios, "materias": materias}
-                utils.guardar_profesores(profesores + [nuevo_prof])
-                st.success("Profesor agregado.")
-                st.experimental_rerun()
-
-def seleccionar_profesores_para_calculo(profesores):
-    """
-    Permite seleccionar profesores para el cálculo de horarios.
-    Retorna la sublista seleccionada.
-    """
-    nombres = [p['nombre'] for p in profesores]
-    seleccionados = st.multiselect("Seleccione los profesores para el cálculo de horarios", nombres, default=nombres)
-    return [p for p in profesores if p['nombre'] in seleccionados]
-
-def gestionar_materias():
-    """
-    Muestra y permite gestionar materias: ver, editar, eliminar, agregar.
-    """
-    st.markdown("### Gestión de Materias")
-    materias = utils.cargar_materias()
-    for mat in materias:
-        with st.expander(f"{mat['nombre']}"):
-            st.markdown(f"- **Duración:** {mat['duracion']} horas/semana")
-            st.markdown(f"- **Semestre:** {mat['semestre']}")
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button(f"Editar", key=f"editar_mat_{mat['nombre']}"):
-                    with st.form(f"form_edit_mat_{mat['nombre']}", clear_on_submit=True):
-                        nombre, duracion, semestre = formulario_materia(default=mat)
-                        submit = st.form_submit_button("Guardar cambios")
-                        if submit:
-                            if not nombre or not duracion or not semestre:
-                                st.warning("Por favor, complete todos los campos antes de guardar.")
-                            else:
-                                nueva_mat = {"nombre": nombre, "duracion": duracion, "semestre": semestre}
-                                utils.actualizar_materia(mat['nombre'], nueva_mat)
-                                st.success("Materia actualizada.")
-                                st.experimental_rerun()
-            with col2:
-                if st.button(f"Eliminar", key=f"eliminar_mat_{mat['nombre']}"):
-                    utils.eliminar_materia(mat['nombre'])
-                    st.success("Materia eliminada.")
-                    st.experimental_rerun()
-    st.markdown("---")
-    st.markdown("#### Agregar nueva materia")
-    with st.form("form_nueva_materia", clear_on_submit=True):
-        nombre, duracion, semestre = formulario_materia()
-        submit = st.form_submit_button("Agregar materia")
-        if submit:
-            if not nombre or not duracion or not semestre:
-                st.warning("Por favor, complete todos los campos antes de agregar la materia.")
-            else:
-                nueva_mat = {"nombre": nombre, "duracion": duracion, "semestre": semestre}
-                utils.guardar_materias(materias + [nueva_mat])
-                st.success("Materia agregada.")
-                st.experimental_rerun()
-
-def gestionar_profesores_dashboard():
-    # ... (mantener implementación existente)
-    pass
-
-def editar_profesor(prof):
-    # ... (mantener implementación existente)
-    pass
-
-def gestionar_materias_dashboard():
-    # ... (mantener implementación existente)
-    pass
-
-def editar_materia(mat):
-    # ... (mantener implementación existente)
-    pass
-
-def configurar_calculo_horarios_dashboard():
-    # ... (mantener implementación existente)
-    pass
-
-def gestionar_profesores_con_malla_dashboard():
-    """
-    Dashboard para gestionar profesores usando la malla curricular.
-    """
-    st.markdown("#### Profesores (con malla curricular)")
-    profesores = utils.cargar_profesores()
+def gestionar_profesores() -> None:
+    """Interfaz completa para gestionar profesores."""
+    try:
+        profesores = utils.cargar_profesores()
+    except Exception as e:
+        st.error(f"Error al cargar profesores: {str(e)}")
+        return
     
-    # Mostrar profesores existentes
-    for prof in profesores:
-        tarjeta_profesor(
-            prof,
-            on_edit=lambda p=prof: editar_profesor_con_malla(p),
-            on_delete=lambda p=prof: (utils.eliminar_profesor(p['nombre']), st.experimental_rerun())
-        )
+    st.title("Gestión de Profesores")
     
-    # Botón para agregar nuevo profesor
-    if st.button("➕ Agregar profesor", key="add_prof_malla"):
-        st.session_state['show_prof_malla_form'] = True
+    # Listado de profesores existentes
+    st.header("Profesores registrados")
+    
+    if not profesores:
+        st.info("No hay profesores registrados aún.")
+    else:
+        for i, prof in enumerate(profesores):
+            with st.expander(f"{prof['nombre']} ({len(prof['materias'])} materias)"):
+                # Mostrar información del profesor
+                st.markdown(f"**Horarios disponibles:** {', '.join(prof['horarios_disponibles']) or 'Ninguno'}")
+                
+                st.markdown("**Materias que dicta:**")
+                for m in prof['materias']:
+                    st.markdown(f"- {m['nombre']} (Semestre: {m['semestre']}, Duración: {m['duracion']}h/sem)")
+                
+                # Botones de acción
+                col1, col2, col3 = st.columns([1, 1, 2])
+                
+                with col1:
+                    if st.button("Editar", key=f"editar_{i}"):
+                        st.session_state['editar_profesor'] = i
+                
+                with col2:
+                    if st.button("Eliminar", key=f"eliminar_{i}"):
+                        try:
+                            utils.eliminar_profesor(prof['nombre'])
+                            st.success("Profesor eliminado correctamente.")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error al eliminar profesor: {str(e)}")
+                
+                with col3:
+                    if st.button("Usar malla curricular", key=f"malla_{i}"):
+                        st.session_state['editar_profesor_malla'] = i
+    
+    # Formulario de edición (normal)
+    if 'editar_profesor' in st.session_state:
+        st.header("Editar profesor")
+        prof = profesores[st.session_state['editar_profesor']]
+        
+        with st.form(f"form_editar_{prof['nombre']}"):
+            nombre, horarios, materias = formulario_profesor(default=prof)
+            
+            if st.form_submit_button("Guardar cambios"):
+                if _validar_datos_profesor(nombre, horarios, materias):
+                    try:
+                        nuevo_prof = {
+                            "nombre": nombre,
+                            "horarios_disponibles": horarios,
+                            "materias": materias
+                        }
+                        utils.actualizar_profesor(prof['nombre'], nuevo_prof)
+                        st.success("Profesor actualizado correctamente.")
+                        del st.session_state['editar_profesor']
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al actualizar profesor: {str(e)}")
+        
+        if st.button("Cancelar"):
+            del st.session_state['editar_profesor']
+    
+    # Formulario de edición con malla
+    if 'editar_profesor_malla' in st.session_state:
+        st.header("Editar profesor (con malla curricular)")
+        prof = profesores[st.session_state['editar_profesor_malla']]
+        
+        nombre, horarios, materias = formulario_profesor_con_malla(default=prof)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Guardar cambios"):
+                if _validar_datos_profesor(nombre, horarios, materias):
+                    try:
+                        nuevo_prof = {
+                            "nombre": nombre,
+                            "horarios_disponibles": horarios,
+                            "materias": materias
+                        }
+                        utils.actualizar_profesor(prof['nombre'], nuevo_prof)
+                        st.success("Profesor actualizado correctamente.")
+                        del st.session_state['editar_profesor_malla']
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al actualizar profesor: {str(e)}")
+        with col2:
+            if st.button("Cancelar"):
+                del st.session_state['editar_profesor_malla']
     
     # Formulario para nuevo profesor
-    if st.session_state.get('show_prof_malla_form'):
-        st.markdown("##### Nuevo Profesor (selección desde malla curricular)")
+    st.header("Agregar nuevo profesor")
+    
+    tab1, tab2 = st.tabs(["Formulario manual", "Desde malla curricular"])
+    
+    with tab1:
+        with st.form("form_nuevo_profesor"):
+            nombre, horarios, materias = formulario_profesor()
+            
+            if st.form_submit_button("Agregar profesor"):
+                if _validar_datos_profesor(nombre, horarios, materias):
+                    try:
+                        nuevo_prof = {
+                            "nombre": nombre,
+                            "horarios_disponibles": horarios,
+                            "materias": materias
+                        }
+                        utils.guardar_profesores(profesores + [nuevo_prof])
+                        st.success("Profesor agregado correctamente.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al agregar profesor: {str(e)}")
+    
+    with tab2:
         nombre, horarios, materias = formulario_profesor_con_malla()
         
-        if st.button("Guardar profesor", key="save_prof_malla"):
-            if not nombre or not horarios or not materias:
-                st.warning("Por favor, complete todos los campos y seleccione al menos una materia.")
-            else:
-                nuevo_prof = {
-                    "nombre": nombre, 
-                    "horarios_disponibles": horarios, 
-                    "materias": materias
-                }
-                utils.guardar_profesores(profesores + [nuevo_prof])
-                st.success("Profesor agregado exitosamente.")
-                st.session_state['show_prof_malla_form'] = False
-                st.experimental_rerun()
+        if st.button("Agregar profesor (malla)"):
+            if _validar_datos_profesor(nombre, horarios, materias):
+                try:
+                    nuevo_prof = {
+                        "nombre": nombre,
+                        "horarios_disponibles": horarios,
+                        "materias": materias
+                    }
+                    utils.guardar_profesores(profesores + [nuevo_prof])
+                    st.success("Profesor agregado correctamente.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error al agregar profesor: {str(e)}")
 
-def editar_profesor_con_malla(prof):
-    """
-    Editar profesor usando la malla curricular.
-    """
-    st.markdown(f"##### Editar Profesor: {prof['nombre']}")
-    nombre, horarios, materias = formulario_profesor_con_malla(default=prof)
+def gestionar_materias() -> None:
+    """Interfaz completa para gestionar materias."""
+    try:
+        materias = utils.cargar_materias()
+    except Exception as e:
+        st.error(f"Error al cargar materias: {str(e)}")
+        return
     
-    if st.button("Guardar cambios", key=f"save_edit_prof_malla_{prof['nombre']}"):
-        if not nombre or not horarios or not materias:
-            st.warning("Por favor, complete todos los campos y seleccione al menos una materia.")
-        else:
-            nuevo_prof = {
-                "nombre": nombre, 
-                "horarios_disponibles": horarios, 
-                "materias": materias
-            }
-            utils.actualizar_profesor(prof['nombre'], nuevo_prof)
-            st.success("Profesor actualizado exitosamente.")
-            st.experimental_rerun() 
+    st.title("Gestión de Materias")
+    
+    # Listado de materias existentes
+    st.header("Materias registradas")
+    
+    if not materias:
+        st.info("No hay materias registradas aún.")
+    else:
+        for i, mat in enumerate(materias):
+            with st.expander(f"{mat['nombre']}"):
+                st.markdown(f"**Semestre:** {mat['semestre']}")
+                st.markdown(f"**Duración:** {mat['duracion']} horas/semana")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    if st.button("Editar", key=f"editar_mat_{i}"):
+                        st.session_state['editar_materia'] = i
+                
+                with col2:
+                    if st.button("Eliminar", key=f"eliminar_mat_{i}"):
+                        try:
+                            utils.eliminar_materia(mat['nombre'])
+                            st.success("Materia eliminada correctamente.")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error al eliminar materia: {str(e)}")
+    
+    # Formulario de edición
+    if 'editar_materia' in st.session_state:
+        st.header("Editar materia")
+        mat = materias[st.session_state['editar_materia']]
+        
+        with st.form(f"form_editar_mat_{mat['nombre']}"):
+            nombre, duracion, semestre = formulario_materia(default=mat)
+            
+            if st.form_submit_button("Guardar cambios"):
+                if not nombre.strip():
+                    st.warning("El nombre de la materia no puede estar vacío.")
+                else:
+                    try:
+                        nueva_mat = {
+                            "nombre": nombre,
+                            "duracion": duracion,
+                            "semestre": semestre
+                        }
+                        utils.actualizar_materia(mat['nombre'], nueva_mat)
+                        st.success("Materia actualizada correctamente.")
+                        del st.session_state['editar_materia']
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al actualizar materia: {str(e)}")
+        
+        if st.button("Cancelar"):
+            del st.session_state['editar_materia']
+    
+    # Formulario para nueva materia
+    st.header("Agregar nueva materia")
+    
+    with st.form("form_nueva_materia"):
+        nombre, duracion, semestre = formulario_materia()
+        
+        if st.form_submit_button("Agregar materia"):
+            if not nombre.strip():
+                st.warning("El nombre de la materia no puede estar vacío.")
+            else:
+                try:
+                    nueva_mat = {
+                        "nombre": nombre,
+                        "duracion": duracion,
+                        "semestre": semestre
+                    }
+                    utils.guardar_materias(materias + [nueva_mat])
+                    st.success("Materia agregada correctamente.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error al agregar materia: {str(e)}")
+
+def seleccionar_profesores_para_calculo(profesores: List[Dict]) -> List[Dict]:
+    """
+    Permite seleccionar profesores para el cálculo de horarios.
+    
+    Args:
+        profesores: Lista completa de profesores
+        
+    Returns:
+        Lista de profesores seleccionados
+    """
+    st.subheader("Selección de profesores para asignación")
+    
+    if not profesores:
+        st.warning("No hay profesores registrados.")
+        return []
+    
+    nombres = [p['nombre'] for p in profesores]
+    seleccionados = st.multiselect(
+        "Seleccione los profesores para el cálculo", 
+        nombres,
+        default=nombres,
+        key="seleccion_profesores"
+    )
+    
+    return [p for p in profesores if p['nombre'] in seleccionados]
+
+# Funciones de dashboard (simplificadas para el ejemplo)
+def gestionar_profesores_dashboard():
+    """Versión simplificada para dashboard."""
+    gestionar_profesores()
+
+def gestionar_materias_dashboard():
+    """Versión simplificada para dashboard."""
+    gestionar_materias()
+
+def configurar_calculo_horarios_dashboard():
+    """Configuración para dashboard."""
+    profesores = utils.cargar_profesores()
+    return seleccionar_profesores_para_calculo(profesores)

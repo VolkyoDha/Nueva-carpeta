@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "nombre": "mauro",
+    "horarios_disponibles": [
+      "Martes 9-11",
+      "Martes 13-15",
+      "Viernes 13-15",
+      "Miércoles 13-15",
+      "Viernes 11-13",
+      "Lunes 11-13"
+    ],
+    "materias": [
+      {
+        "nombre": "Física II",
+        "semestre": 2,
+        "duracion": 4
+      },
+      {
+        "nombre": "Programación II",
+        "semestre": 2,
+        "duracion": 6
+      }
+    ]
+  },
+  {
+    "nombre": "cesar armars",
+    "horarios_disponibles": [
+      "Lunes 11-13",
+      "Miércoles 7-9",
+      "Lunes 9-11",
+      "Jueves 13-15",
+      "Jueves 9-11"
+    ],
+    "materias": [
+      {
+        "nombre": "mineira de datos",
+        "semestre": 8,
+        "duracion": 4
+      },
+      {
+        "nombre": "calidad de softfare",
+        "semestre": 8,
+        "duracion": 4
+      }
+    ]
+  }
+]
