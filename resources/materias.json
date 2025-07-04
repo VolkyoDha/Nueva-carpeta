@@ -336,13 +336,6 @@
     "horas_semestrales": 32
   },
   {
-    "codigo": "TIP10BFT01",
-    "nombre": "SISTEMAS DE INFORMACIÓN EMPRESARIAL",
-    "semestre": 10,
-    "horas_semanales": 4,
-    "horas_semestrales": 64
-  },
-  {
     "codigo": "TIP10BFT02",
     "nombre": "FORMACIÓN DE EMPRESAS DE BASE TECNOLÓGICA",
     "semestre": 10,
